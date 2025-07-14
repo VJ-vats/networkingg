@@ -1,0 +1,32 @@
+name: Deploy to EC2 using Ansible
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Configure EC2 via Ansible
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Add EC2 host to known_hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Run Ansible Playbook
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+        ansible-playbook ansible/install_docker.yml -i ansible/inventory.ini
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: "False"
