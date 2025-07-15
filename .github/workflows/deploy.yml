@@ -28,6 +28,10 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y ansible
-        ansible-playbook ansible/install_docker.yml -i ansible/inventory.ini
+        ansible-playbook \
+          ansible/install_docker.yml \
+          -i ansible/inventory.ini \
+          --private-key ~/.ssh/firstkey.pem \
+          -u ubuntu
       env:
         ANSIBLE_HOST_KEY_CHECKING: "False"
